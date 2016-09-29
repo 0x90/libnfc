@@ -690,7 +690,9 @@ main(int argc, const char *argv[])
         && (abtRx[7] == 0x2f) && (abtRx[8] == 0x2f)
         && ((nt.nti.nai.abtAtqa[1] & 0x02) == 0x00)) {
       // MIFARE Plus 2K
-      uiBlocks = 0x7f;
+      //uiBlocks = 0x7f;
+      // HARDCODED max blocks to 0x3f 
+      uiBlocks = 0x3f;
     }
     // Chinese magic emulation card, ATS=0978009102:dabc1910
     if ((res == 9)  && (abtRx[5] == 0xda) && (abtRx[6] == 0xbc)
