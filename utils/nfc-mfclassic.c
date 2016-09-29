@@ -341,8 +341,15 @@ read_card(int read_unlocked)
 
       // Try to authenticate for the current sector
       if (!read_unlocked && !authenticate(iBlock)) {
-        printf("!\nError: authentication failed for block 0x%02x\n", iBlock);
-        return false;
+
+        // Ignore authentication errors
+        if ( bTolerateFailures ) {
+          printf("!\nError: authentication failed for block 0x%02x Ignoring...\n", iBlock);
+        } else {
+          printf("!\nError: authentication failed for block 0x%02x\n", iBlock);
+          return false;
+        }
+
       }
       // Try to read out the trailer
       if (nfc_initiator_mifare_cmd(pnd, MC_READ, iBlock, &mp)) {
@@ -372,7 +379,7 @@ read_card(int read_unlocked)
           memcpy(mtDump.amb[iBlock].mbd.abtData, mp.mpd.abtData, 16);
         } else {
           if ( bTolerateFailures ) {
-            printf("!\nError: unable to read block 0x%02x Ignoring....\n", iBlock);
+            printf("!\nError: unable to read block 0x%02x Ignoring...\n", iBlock);
             bFailure = false;
           } else {
             printf("!\nError: unable to read block 0x%02x\n", iBlock);
