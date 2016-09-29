@@ -371,8 +371,14 @@ read_card(int read_unlocked)
         if (nfc_initiator_mifare_cmd(pnd, MC_READ, iBlock, &mp)) {
           memcpy(mtDump.amb[iBlock].mbd.abtData, mp.mpd.abtData, 16);
         } else {
-          printf("!\nError: unable to read block 0x%02x\n", iBlock);
-          bFailure = true;
+          if ( bTolerateFailures ) {
+            printf("!\nError: unable to read block 0x%02x Ignoring....\n", iBlock);
+            bFailure = false;
+          } else {
+            printf("!\nError: unable to read block 0x%02x\n", iBlock);
+            bFailure = true;
+        }
+
         }
       }
     }
@@ -691,7 +697,7 @@ main(int argc, const char *argv[])
         && ((nt.nti.nai.abtAtqa[1] & 0x02) == 0x00)) {
       // MIFARE Plus 2K
       //uiBlocks = 0x7f;
-      // HARDCODED max blocks to 0x3f 
+      // HARDCODED max blocks to 0x3f
       uiBlocks = 0x3f;
     }
     // Chinese magic emulation card, ATS=0978009102:dabc1910
