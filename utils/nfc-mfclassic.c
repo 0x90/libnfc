@@ -310,7 +310,7 @@ read_card(int read_unlocked)
   uint32_t uiReadBlocks = 0;
 
   if (read_unlocked) {
-    //If the user is attempting an unlocked read, but has a direct-write type magic card, they don't 
+    //If the user is attempting an unlocked read, but has a direct-write type magic card, they don't
     //need to use the R mode. We'll trigger a warning and let them proceed.
     if (magic2) {
       printf("Note: This card does not require an unlocked write (R) \n");
@@ -318,11 +318,11 @@ read_card(int read_unlocked)
     } else {
       //If User has requested an unlocked read, but we're unable to unlock the card, we'll error out.
       if (!unlock_card()) {
-        return false; 
+        return false;
       }
     }
   }
-  
+
   printf("Reading out %d blocks |", uiBlocks + 1);
   // Read the card from end to begin
   for (iBlock = uiBlocks; iBlock >= 0; iBlock--) {
@@ -355,8 +355,14 @@ read_card(int read_unlocked)
           memcpy(mtDump.amb[iBlock].mbt.abtKeyB, mtKeys.amb[iBlock].mbt.abtKeyB, 6);
         }
       } else {
-        printf("!\nfailed to read trailer block 0x%02x\n", iBlock);
-        bFailure = true;
+        if ( bTolerateFailures ) {
+          printf("!\nfailed to read trailer block 0x%02x Ignoring...\n", iBlock);
+          bFailure = false;
+        }else {
+          printf("!\nfailed to read trailer block 0x%02x\n", iBlock);
+          bFailure = true;
+        }
+
       }
     } else {
       // Make sure a earlier readout did not fail
@@ -390,7 +396,7 @@ write_card(int write_block_zero)
   uint32_t uiWriteBlocks = 0;
 
   if (write_block_zero) {
-    //If the user is attempting an unlocked write, but has a direct-write type magic card, they don't 
+    //If the user is attempting an unlocked write, but has a direct-write type magic card, they don't
     //need to use the W mode. We'll trigger a warning and let them proceed.
     if (magic2) {
       printf("Note: This card does not require an unlocked write (W) \n");
@@ -398,11 +404,11 @@ write_card(int write_block_zero)
     } else {
       //If User has requested an unlocked write, but we're unable to unlock the card, we'll error out.
       if (!unlock_card()) {
-        return false; 
+        return false;
       }
     }
   }
-  
+
   printf("Writing %d blocks |", uiBlocks + 1);
   // Write the card from begin to end;
   for (uiBlock = 0; uiBlock <= uiBlocks; uiBlock++) {
